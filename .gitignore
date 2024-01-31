@@ -7,7 +7,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Lab1
+.Python
 build/
 develop-eggs/
 dist/
