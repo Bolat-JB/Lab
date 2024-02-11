@@ -5,8 +5,6 @@ class Account():
     def deposit(self, dep):
         self.dep = dep
         self.balance = self.balance + self.dep
-        if self.balance < 0:
-            return "Your balance is overdrawned"
         return f"Welcome, {self.owner} \nYour balance after deposit is: {self.balance}"
     def withdraw(self, wit):
         self.wit = wit
