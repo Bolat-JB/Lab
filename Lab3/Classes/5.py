@@ -20,9 +20,9 @@ class Account():
         return f"Welcome, {self.owner} \nYour balance is: {self.balance}"
 
     
-acc = Account("Michael", 5000)
+acc = Account("John", 4000)
 print(acc.seebalance())
 print(acc.deposit(120))
 print(acc.withdraw(500))
-print(acc.withdraw(6000))
+print(acc.withdraw(5000))
 print(acc.deposit(1500))
