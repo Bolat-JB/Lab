@@ -1,7 +1,7 @@
 import json
 
 with open('sample-data.json') as k:
-    f = json.loads(k)
+    f = json.load(k)
 
 interf = []
 
