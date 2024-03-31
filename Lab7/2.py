@@ -1,43 +1,72 @@
-import pygame, os
+import pygame, os, re
 
 pygame.init()
-screen = pygame.display.set_mode((400, 300))
-pygame.display.set_caption("Music Player")
 
-music_dir = "D:\KBTU\A_SEM2\PP 2\Lab7"
-music_files = [filename for filename in os.listdir(music_dir) if filename.endswith(".mp3")]
+def theme():
 
-current_track = 0
-is_playing = False
+    pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(120, 50, 400, 40))
+    
+    font = pygame.font.SysFont('arial', 20)
+    manual = "SPACE to start and pause_press  '->' next song_<-' previous song"
+    point = 280
+    for i in manual.split('_'):
+        m = font.render(i, True, (255, 255, 255))
+        if 'press' in i or 'SPACE' in i: screen.blit(m, (150, point))
+        else: screen.blit(m, (150, point))
+        point += 20
 
-if music_files:
-    pygame.mixer.music.load(os.path.join(music_dir, music_files[current_track]))
+def get_path(path):
+    canon_path = path.replace('/',os.sep).replace('\\',os.sep)
+    return canon_path
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                if is_playing:
-                    pygame.mixer.music.pause()
-                    is_playing = False
-                else:
-                    pygame.mixer.music.unpause()
-                    is_playing = True
-            elif event.key == pygame.K_n:
-                current_track = (current_track + 1) % len(music_files)
-                pygame.mixer.music.load(os.path.join(music_dir, music_files[current_track]))
-                pygame.mixer.music.play()
-                is_playing = True
-            elif event.key == pygame.K_p:
-                current_track = (current_track - 1) % len(music_files)
-                pygame.mixer.music.load(os.path.join(music_dir, music_files[current_track]))
-                pygame.mixer.music.play()
-                is_playing = True
+def track_name(playlist, track, screen):
+    font = pygame.font.SysFont('arial', 25)
+    track_name = playlist[track]
+    track_name = re.sub('.ogg', '', track_name)
+    track_name = re.sub('.mp3', '', track_name) 
+    screen.blit(font.render(track_name, True, (255, 255, 255)), (120, 50))
 
-    screen.fill((255, 255, 255))
-    pygame.display.flip()
+def next_song(track, playlist, state):
+    if state:
+        if track != len(playlist) - 1: track += 1
+        else: track = 0
+    else:
+        if track != 0: track -= 1 
+        else: track = len(playlist) - 1
+    return track
 
-pygame.quit()
+def load_new_song(track, playlist):
+    pygame.mixer.music.load(get_path(f'mus/{playlist[track]}'))
+    pygame.mixer.music.play(0)
+
+
+screen = pygame.display.set_mode((600, 400))
+pygame.display.set_caption('Music Player')
+playlist = [i for i in os.listdir('mus') if '.ogg' in i or '.mp3' in i]
+track = 0
+
+run = True 
+play = False
+
+while run:
+    theme()
+    track_name(playlist, track, screen)
+    for i in pygame.event.get():
+        if i.type == pygame.QUIT:
+            run = False
+        if i.type == pygame.KEYDOWN: 
+            if i.key == pygame.K_SPACE:
+                if not play: 
+                    load_new_song(track, playlist)
+                else: pygame.mixer.music.pause()
+                play = not play
+            if i.key == pygame.K_RIGHT and play:
+                track = next_song(track, playlist, True)
+                load_new_song(track, playlist)
+            if i.key == pygame.K_LEFT and play:
+                track = next_song(track, playlist, False)
+                load_new_song(track, playlist)
+        if pygame.mixer.music.get_busy() == False and play:
+            track = next_song(track, playlist, True)
+            load_new_song(track, playlist)
+    pygame.display.update()
